@@ -9,7 +9,7 @@ fn main() {
   let buf = &mut [0u8; 4096];
 
   loop {
-    rng.fill(buf);
+    rng.fill_u8(buf);
     if let Err(_) = out.write_all(buf) { break; }
   }
 }

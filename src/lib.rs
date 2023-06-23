@@ -73,7 +73,7 @@ impl Rng {
   /// Samples a `u64` from the uniform distribution.
 
   #[inline(always)]
-  pub fn next(&mut self) -> u64 {
+  pub fn u64(&mut self) -> u64 {
     const M: u64 = 0x487e_d511_0b46_11a6; // floor((2 * pi - 6) * (2 ** 64))
     let s = self.0.get();
     let a = lo(s);
@@ -93,8 +93,8 @@ impl Rng {
 
   #[inline(always)]
   pub fn split(&mut self) -> Self {
-    let a = self.next();
-    let b = self.next();
+    let a = self.u64();
+    let b = self.u64();
     let s = concat(a, b);
     let s = s ^ (s == 0) as u128;
     let s = unsafe { NonZeroU128::new_unchecked(s) };
@@ -103,14 +103,14 @@ impl Rng {
 
   /// Fills a slice with i.i.d. bytes sampled from the uniform distribution.
 
-  pub fn fill(&mut self, dst: &mut [u8]) {
+  pub fn fill_u8(&mut self, dst: &mut [u8]) {
     if dst.len() == 0 { return; }
 
     let mut dst = dst;
     let mut x;
 
     loop {
-      x = self.next();
+      x = self.u64();
       if dst.len() < 8 { break; }
       dst[.. 8].copy_from_slice(&x.to_le_bytes());
       dst = &mut dst[8 ..];
@@ -121,5 +121,40 @@ impl Rng {
       x >>= 8;
       dst = &mut dst[1 ..];
     }
+  }
+}
+
+#[cfg(feature = "rand_core")]
+impl rand_core::RngCore for Rng {
+  #[inline(always)]
+  fn next_u32(&mut self) -> u32 {
+    self.u64() as u32
+  }
+
+  #[inline(always)]
+  fn next_u64(&mut self) -> u64 {
+    self.u64()
+  }
+
+  fn fill_bytes(&mut self, dest: &mut [u8]) {
+    self.fill_u8(dest)
+  }
+
+  fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand_core::Error> {
+    self.fill_u8(dest);
+    Ok(())
+  }
+}
+
+#[cfg(feature = "rand_core")]
+impl rand_core::SeedableRng for Rng {
+  type Seed = [u8; 16];
+
+  fn from_seed(seed: Self::Seed) -> Self {
+    Self::from_seed(seed)
+  }
+
+  fn seed_from_u64(state: u64) -> Self {
+    Self::from_u64(state)
   }
 }

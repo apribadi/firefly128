@@ -1,15 +1,19 @@
 [package]
 authors = ["Aaron Pribadi <aaron.pribadi@gmail.com>"]
 edition = "2021"
+keywords = ["random", "rng"]
 license = "Artistic-2.0"
 name = "firefly-rng"
 version = "0.1.0"
 
 [dependencies]
-getrandom = { version = "0.2.9", optional = true }
+rand_core = { version = "0.6.4", optional = true }
 
 [dev-dependencies]
 expect-test = "1.4.1"
+
+[features]
+rand_core = ["dep:rand_core"]
 
 [lints.rust]
 elided_lifetimes_in_paths = "warn"

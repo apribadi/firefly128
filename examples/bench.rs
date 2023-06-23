@@ -1,5 +1,4 @@
 use std::time::Instant;
-use std::hint;
 use firefly_rng::Rng as Firefly;
 
 const COUNT: usize = 100_000_000;
@@ -35,7 +34,7 @@ impl BenchRng for Firefly {
 
   #[inline(always)]
   fn u64(&mut self) -> u64 {
-    self.next()
+    self.u64()
   }
 }
 
@@ -131,89 +130,87 @@ impl BenchRng for Mwc256xxa64 {
 fn warmup() {
   let mut s = 1u64;
   for i in 0 .. 100_000_000 { s = s.wrapping_mul(i); }
-  let _: u64 = hint::black_box(s);
+  let _: u64 = core::hint::black_box(s);
 }
 
 fn timeit<A, F>(f: F) -> f64 where F: FnOnce() -> A {
   let start = Instant::now();
-  let _: A = hint::black_box(f());
+  let _: A = core::hint::black_box(f());
   let stop = Instant::now();
   stop.saturating_duration_since(start).as_nanos() as f64
 }
 
 fn run_bench<T: BenchRng, F>(name: &str, f: F) where F: Fn(&mut T, usize) -> u64 {
-  let mut rng = T::from_seed(*b"abcdefghijklmnop");
-  let elapsed = timeit(|| f(&mut rng, COUNT));
-  // let rate = ((COUNT as f64) * 1_000.) / elapsed;
-  // print!("{:25} {:.3} / μs\n", name, rate);
+  let mut g = T::from_seed(*b"abcdefghijklmnop");
+  let elapsed = timeit(|| f(&mut g, COUNT));
   print!("{:25} {:.3} ns\n", name, elapsed / (COUNT as f64));
 }
 
-fn bench_loop<T: BenchRng>(rng: &mut T, count: usize) -> u64 {
+fn bench_loop<T: BenchRng>(g: &mut T, count: usize) -> u64 {
   let mut s = 0u64;
   for _ in 0 .. count {
-    s = s.wrapping_add(rng.u64());
+    s = s.wrapping_add(g.u64());
   }
   s
 }
 
-fn bench_loop_noinline<T: BenchRng>(rng: &mut T, count: usize) -> u64 {
+fn bench_loop_noinline<T: BenchRng>(g: &mut T, count: usize) -> u64 {
   let mut s = 0u64;
   for _ in 0 .. count {
-    s = s.wrapping_add(rng.u64_noinline());
+    s = s.wrapping_add(g.u64_noinline());
   }
   s
 }
 
 #[inline(never)]
-fn bench_loop_2x(rng: &mut Firefly, count: usize) -> u64 {
-  let mut rng2 = rng.split();
+fn bench_loop_2x(g: &mut Firefly, count: usize) -> u64 {
+  let mut h = g.split();
   let mut s = 0u64;
   for _ in 0 .. count / 2 {
-    s = s.wrapping_add(rng.u64());
-    s = s.wrapping_add(rng2.u64());
+    s = s.wrapping_add(g.u64());
+    s = s.wrapping_add(h.u64());
   }
   s
 }
 
 #[inline(never)]
-fn bench_loop_pcg64dxsm(rng: &mut Pcg64dxsm, count: usize) -> u64 {
-  bench_loop::<Pcg64dxsm>(rng, count)
+fn bench_loop_pcg64dxsm(g: &mut Pcg64dxsm, count: usize) -> u64 {
+  bench_loop::<Pcg64dxsm>(g, count)
 }
 
 #[inline(never)]
-fn bench_loop_xoroshiro128pp(rng: &mut Xoroshiro128pp, count: usize) -> u64 {
-  bench_loop::<Xoroshiro128pp>(rng, count)
+fn bench_loop_xoroshiro128pp(g: &mut Xoroshiro128pp, count: usize) -> u64 {
+  bench_loop::<Xoroshiro128pp>(g, count)
 }
 
 #[inline(never)]
-fn bench_loop_firefly(rng: &mut Firefly, count: usize) -> u64 {
-  bench_loop::<Firefly>(rng, count)
+fn bench_loop_firefly(g: &mut Firefly, count: usize) -> u64 {
+  bench_loop::<Firefly>(g, count)
 }
 
 #[inline(never)]
-fn bench_loop_mwc256xxa64(rng: &mut Mwc256xxa64, count: usize) -> u64 {
-  bench_loop::<Mwc256xxa64>(rng, count)
+fn bench_loop_mwc256xxa64(g: &mut Mwc256xxa64, count: usize) -> u64 {
+  bench_loop::<Mwc256xxa64>(g, count)
 }
 
 #[inline(never)]
-fn bench_loop_noinline_pcg64dxsm(rng: &mut Pcg64dxsm, count: usize) -> u64 {
-  bench_loop_noinline::<Pcg64dxsm>(rng, count)
+fn bench_loop_noinline_pcg64dxsm(g: &mut Pcg64dxsm, count: usize) -> u64 {
+  bench_loop_noinline::<Pcg64dxsm>(g, count)
 }
 
 #[inline(never)]
-fn bench_loop_noinline_xoroshiro128pp(rng: &mut Xoroshiro128pp, count: usize) -> u64 {
-  bench_loop_noinline::<Xoroshiro128pp>(rng, count)
+fn bench_loop_noinline_xoroshiro128pp(g: &mut Xoroshiro128pp, count: usize) -> u64 {
+  bench_loop_noinline::<Xoroshiro128pp>(g, count)
 }
 
 #[inline(never)]
-fn bench_loop_noinline_firefly(rng: &mut Firefly, count: usize) -> u64 {
-  bench_loop_noinline::<Firefly>(rng, count)
+fn bench_loop_noinline_firefly(g: &mut Firefly, count: usize) -> u64 {
+  bench_loop_noinline::<Firefly>(g, count)
 }
 
 #[inline(never)]
-fn bench_loop_noinline_mwc256xxa64(rng: &mut Mwc256xxa64, count: usize) -> u64 {
-  bench_loop_noinline::<Mwc256xxa64>(rng, count)
+fn bench_loop_noinline_mwc256xxa64(g: &mut Mwc256xxa64, count: usize) -> u64 {
+  bench_loop_noinline::<Mwc256xxa64>(g, count)
 }
 
 fn main() {
