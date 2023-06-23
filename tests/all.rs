@@ -1,4 +1,4 @@
-use firefly_random::Rng;
+use firefly_rand::Rng;
 use expect_test::expect;
 
 #[test]

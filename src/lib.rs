@@ -23,8 +23,7 @@ const fn concat(x: u64, y: u64) -> u128 {
   (x as u128) ^ ((y as u128) << 64)
 }
 
-/// A fast non-cryptographic random number generator with a 128-bit state and
-/// 64-bit outputs.
+/// A fast non-cryptographic random number generator.
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Rng(NonZeroU128);
@@ -49,7 +48,6 @@ impl Rng {
   /// initial state. A good seed should be drawn from a distribution with
   /// sufficient entropy.
 
-  #[inline(always)]
   pub const fn from_seed(seed: [u8; 16]) -> Self {
     let s = u128::from_le_bytes(seed);
     let s = s ^ (s == 0) as u128;
@@ -103,7 +101,7 @@ impl Rng {
     Self(s)
   }
 
-  /// Fills a slice with a i.i.d. bytes sampled from the uniform distribution.
+  /// Fills a slice with i.i.d. bytes sampled from the uniform distribution.
 
   pub fn fill(&mut self, dst: &mut [u8]) {
     if dst.len() == 0 { return; }
