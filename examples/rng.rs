@@ -1,7 +1,7 @@
 // Writes a sequence of pseudo-random bytes to stdout.
 
 use std::io::Write;
-use firefly_rand::Rng;
+use firefly_rng::Rng;
 
 fn main() {
   let mut rng = Rng::from_u64(0);

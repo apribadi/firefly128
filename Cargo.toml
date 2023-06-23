@@ -2,7 +2,7 @@
 authors = ["Aaron Pribadi <aaron.pribadi@gmail.com>"]
 edition = "2021"
 license = "Artistic-2.0"
-name = "firefly-rand"
+name = "firefly-rng"
 version = "0.1.0"
 
 [dependencies]

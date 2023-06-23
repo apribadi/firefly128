@@ -1,6 +1,6 @@
 use std::time::Instant;
 use std::hint;
-use firefly_rand::Rng as Firefly;
+use firefly_rng::Rng as Firefly;
 
 const COUNT: usize = 100_000_000;
 
