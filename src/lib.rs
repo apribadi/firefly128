@@ -74,13 +74,12 @@ impl Rng {
 
   #[inline(always)]
   pub fn u64(&mut self) -> u64 {
-    const M: u64 = 0x487e_d511_0b46_11a6; // floor((2 * pi - 6) * (2 ** 64))
     let s = self.0.get();
     let a = lo(s);
     let b = hi(s);
     let c = a.rotate_right(7) ^ b;
     let d = a ^ a >> 19;
-    let t = mul(b, M);
+    let t = mul(b, 0x9e37_79b9_7f4a_7c13);
     let x = a ^ lo(t).wrapping_add(hi(t));
     let s = concat(c, d);
     let s = unsafe { NonZeroU128::new_unchecked(s) };
