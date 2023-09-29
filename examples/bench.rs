@@ -127,6 +127,23 @@ impl BenchRng for Mwc256xxa64 {
   }
 }
 
+struct Mcg128 {
+  x: u128,
+}
+
+impl BenchRng for Mcg128 {
+  fn from_seed(seed: [u8; 16]) -> Self {
+    Self { x: u128::from_le_bytes(seed) }
+  }
+
+  #[inline(always)]
+  fn u64(&mut self) -> u64 {
+    let x = self.x;
+    self.x = 0xda94_2042_e4dd_58b5 * x;
+    hi(x)
+  }
+}
+
 fn warmup() {
   let mut s = 1u64;
   for i in 0 .. 100_000_000 { s = s.wrapping_mul(i); }
@@ -194,6 +211,11 @@ fn bench_loop_mwc256xxa64(g: &mut Mwc256xxa64, count: usize) -> u64 {
 }
 
 #[inline(never)]
+fn bench_loop_mcg128(g: &mut Mcg128, count: usize) -> u64 {
+  bench_loop::<Mcg128>(g, count)
+}
+
+#[inline(never)]
 fn bench_loop_noinline_pcg64dxsm(g: &mut Pcg64dxsm, count: usize) -> u64 {
   bench_loop_noinline::<Pcg64dxsm>(g, count)
 }
@@ -213,6 +235,11 @@ fn bench_loop_noinline_mwc256xxa64(g: &mut Mwc256xxa64, count: usize) -> u64 {
   bench_loop_noinline::<Mwc256xxa64>(g, count)
 }
 
+#[inline(never)]
+fn bench_loop_noinline_mcg128(g: &mut Mcg128, count: usize) -> u64 {
+  bench_loop_noinline::<Mcg128>(g, count)
+}
+
 fn main() {
   warmup();
   run_bench("pcg64dxsm", bench_loop_pcg64dxsm);
@@ -220,8 +247,10 @@ fn main() {
   run_bench("firefly", bench_loop_firefly);
   run_bench("firefly 2x", bench_loop_2x);
   run_bench("mwc256xxa64", bench_loop_mwc256xxa64);
+  run_bench("mcg128", bench_loop_mcg128);
   run_bench("pcg64dxsm (noinline)", bench_loop_noinline_pcg64dxsm);
   run_bench("xoroshiro128++ (noinline)", bench_loop_noinline_xoroshiro128pp);
   run_bench("firefly (noinline)", bench_loop_noinline_firefly);
   run_bench("mwc256xxa64 (noinline)", bench_loop_noinline_mwc256xxa64);
+  run_bench("mcg128 (noinline)", bench_loop_noinline_mcg128);
 }

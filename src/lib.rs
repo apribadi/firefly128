@@ -79,8 +79,8 @@ impl Rng {
     let b = hi(s);
     let c = a.rotate_right(7) ^ b;
     let d = a ^ a >> 19;
-    let t = mul(b, 0x9e37_79b9_7f4a_7c15);
-    let x = a ^ lo(t).wrapping_add(hi(t));
+    let t = mul(a, b);
+    let x = c.wrapping_add(lo(t) ^ hi(t));
     let s = concat(c, d);
     let s = unsafe { NonZeroU128::new_unchecked(s) };
     self.0 = s;
