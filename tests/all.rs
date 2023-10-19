@@ -1,16 +1,16 @@
-use firefly_rng::Rng;
+use firefly128::Rng;
 use expect_test::expect;
 
 #[test]
 fn test_vectors() {
   let mut a = Rng::from_u64(13);
   let mut b = a.split();
-  expect!["0xcb9f84b320d21708"].assert_eq(&format!("{:#018x}", a.u64()));
-  expect!["0xe1f8ac48ae06f0eb"].assert_eq(&format!("{:#018x}", a.u64()));
-  expect!["0x159c1a0c3798e21a"].assert_eq(&format!("{:#018x}", a.u64()));
-  expect!["0x4bcc060cf405a7fd"].assert_eq(&format!("{:#018x}", a.u64()));
-  expect!["0x02d5f796e9035187"].assert_eq(&format!("{:#018x}", b.u64()));
-  expect!["0x68eac07086daf10e"].assert_eq(&format!("{:#018x}", b.u64()));
-  expect!["0xb1edb62eced9a218"].assert_eq(&format!("{:#018x}", b.u64()));
-  expect!["0x2462cf7076796f25"].assert_eq(&format!("{:#018x}", b.u64()));
+  expect!["0xdc81271c5ce3195b"].assert_eq(&format!("{:#018x}", a.u64()));
+  expect!["0x2fbbb964d685bc56"].assert_eq(&format!("{:#018x}", a.u64()));
+  expect!["0xce771d2487942820"].assert_eq(&format!("{:#018x}", a.u64()));
+  expect!["0x1c6112ef1f6ffcfc"].assert_eq(&format!("{:#018x}", a.u64()));
+  expect!["0xc4903e56df523b41"].assert_eq(&format!("{:#018x}", b.u64()));
+  expect!["0x79632a1755bbe3c1"].assert_eq(&format!("{:#018x}", b.u64()));
+  expect!["0x50a516e5e0bac082"].assert_eq(&format!("{:#018x}", b.u64()));
+  expect!["0x53d98d6251dda35f"].assert_eq(&format!("{:#018x}", b.u64()));
 }

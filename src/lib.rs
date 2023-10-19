@@ -79,8 +79,8 @@ impl Rng {
     let b = hi(s);
     let c = a.rotate_right(7) ^ b;
     let d = a ^ a >> 19;
-    let t = mul(a, b);
-    let x = c.wrapping_add(lo(t) ^ hi(t));
+    let t = mul(b, b);
+    let x = a ^ lo(t).wrapping_add(hi(t));
     let s = concat(c, d);
     let s = unsafe { NonZeroU128::new_unchecked(s) };
     self.0 = s;
@@ -107,17 +107,27 @@ impl Rng {
 
     let mut dst = dst;
     let mut x;
+    let mut y;
+
+    // TODO: for long enough slices, we can do overlapping writes for the end.
 
     loop {
       x = self.u64();
-      if dst.len() < 8 { break; }
-      dst[.. 8].copy_from_slice(&x.to_le_bytes());
+      y = self.u64();
+      if dst.len() < 16 { break; }
+      dst[0 ..= 7].copy_from_slice(&x.to_le_bytes());
+      dst[8 ..= 15].copy_from_slice(&y.to_le_bytes());
+      dst = &mut dst[16 ..];
+    }
+
+    if dst.len() >= 8 {
+      dst[0 ..= 7].copy_from_slice(&x.to_le_bytes());
       dst = &mut dst[8 ..];
     }
 
-    while dst.len() > 0 {
-      dst[0] = x as u8;
-      x >>= 8;
+    while dst.len() >= 1 {
+      dst[0] = y as u8;
+      y >>= 8;
       dst = &mut dst[1 ..];
     }
   }

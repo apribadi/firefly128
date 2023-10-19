@@ -1,5 +1,5 @@
 use std::time::Instant;
-use firefly_rng::Rng as Firefly;
+use firefly128::Rng as Firefly;
 
 const COUNT: usize = 100_000_000;
 

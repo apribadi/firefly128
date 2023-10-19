@@ -3,7 +3,7 @@ authors = ["Aaron Pribadi <aaron.pribadi@gmail.com>"]
 edition = "2021"
 keywords = ["random", "rng"]
 license = "Artistic-2.0"
-name = "firefly-rng"
+name = "firefly128"
 version = "0.3.0"
 
 [dependencies]
